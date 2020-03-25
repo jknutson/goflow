@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"strconv"
 	"time"
@@ -66,6 +67,25 @@ type DefaultJSONTransport struct {
 func (s *DefaultJSONTransport) Publish(msgs []*flowmessage.FlowMessage) {
 	for _, msg := range msgs {
 		fmt.Printf("%v\n", FlowMessageToJSON(msg))
+	}
+}
+
+/*
+TODO:
+  * ensure this appends vs. overwrite single line
+	* add alternate formats
+	* add file path as param
+	* add tests
+*/
+type DefaultFileTransport struct {
+}
+
+func (s *DefaultFileTransport) Publish(msgs []*flowmessage.FlowMessage) {
+	for _, msg := range msgs {
+		err := ioutil.WriteFile("flowlog.txt", []byte(FlowMessageToString(msg)), 0644)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}
 	}
 }
 
