@@ -53,7 +53,7 @@ jobs:
           curl -L https://raw.githubusercontent.com/aelsabbahy/goss/${GOSS_VERSION}/extras/dgoss/dgoss -o ./bin/dgoss
           chmod +rx ./bin/dgoss
           export PATH="./bin:$PATH"
-          GOSS_SLEEP=1 dgoss run -it --entrypoint="sh" \
+          GOSS_SLEEP=1 dgoss run -it \
             "docker.pkg.github.com/${GITHUB_REPOSITORY}/goflow:${GITHUB_RUN_ID}"
 #   # yamllint enable rule:line-length
 #   test:
