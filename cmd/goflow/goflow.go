@@ -76,6 +76,8 @@ func main() {
 	case "json":
 		log.SetFormatter(&log.JSONFormatter{})
 		defaultTransport = &utils.DefaultJSONTransport{}
+	case "file":
+		defaultTransport = &utils.DefaultFileTransport{}
 	}
 
 	runtime.GOMAXPROCS(runtime.NumCPU())

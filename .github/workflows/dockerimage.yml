@@ -1,0 +1,76 @@
+---
+name: 'Docker Image CI'
+
+# not sure why this even triggers `truthy`
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: ['master']
+  pull_request:
+    branches: ['master']
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: 'actions/checkout@v2'
+      - name: 'Build the Docker image'
+        # yamllint disable rule:line-length
+        run: |
+          # TODO: figure out why i can't just export these once or use `env:`
+          make docker-goflow \
+            DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/" \
+            GOFLOW_VERSION="${GITHUB_RUN_ID}" \
+            BUILDINFOSDET="${GITHUB_SHA}"
+          make docker-push \
+            DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/" \
+            GOFLOW_VERSION="${GITHUB_RUN_ID}" \
+            BUILDINFOSDET="${GITHUB_SHA}"
+  test:
+    runs-on: 'ubuntu-latest'
+    needs: 'build'
+    steps:
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: 'actions/checkout@v2'
+      - name: 'Build the Docker image'
+        # yamllint disable rule:line-length
+        run: |
+          export GOSS_VERSION='v0.3.10'
+          mkdir -p bin
+          curl -L https://github.com/aelsabbahy/goss/releases/download/${GOSS_VERSION}/goss-linux-amd64 -o ./bin/goss
+          chmod +rx ./bin/goss
+          curl -L https://raw.githubusercontent.com/aelsabbahy/goss/${GOSS_VERSION}/extras/dgoss/dgoss -o ./bin/dgoss
+          chmod +rx ./bin/dgoss
+          export PATH="./bin:$PATH"
+          export GOSS_SLEEP=1
+          dgoss run -it "docker.pkg.github.com/${GITHUB_REPOSITORY}/goflow:${GITHUB_RUN_ID}" -kafka=false
+#   # yamllint enable rule:line-length
+#   test:
+#     runs-on: 'ubuntu-latest'
+#     needs: 'build'
+#     steps:
+#       - name: 'Docker Login'
+#         uses: 'azure/docker-login@v1'
+#         with:
+#           login-server: 'docker.pkg.github.com'
+#           username: $GITHUB_ACTOR
+#           password: ${{ secrets.GITHUB_TOKEN }}
+#       - uses: 'e1himself/goss-installation-action@v1'
+#       - uses: 'actions/checkout@v2'
+#       - name: 'Test the Docker image'
+#         # yamllint disable rule:line-length
+#         run: |
+#           export GOSS_FILES_STRATEGY=cp
+#           export GOSS_SLEEP=5
+#           dgoss run -it docker.pkg.github.com/${GITHUB_REPOSITORY}/goflow:${GITHUB_RUN_ID}

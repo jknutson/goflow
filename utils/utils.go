@@ -2,9 +2,10 @@ package utils
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
+	"log"
 	"net"
+	"os"
 	"strconv"
 	"time"
 
@@ -15,10 +16,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// GetServiceAddresses (comment to appease golint)
 func GetServiceAddresses(srv string) (addrs []string, err error) {
 	_, srvs, err := net.LookupSRV("", "", srv)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Service discovery: %v\n", err))
+		return nil, fmt.Errorf("service discovery: %v", err)
 	}
 	for _, srv := range srvs {
 		addrs = append(addrs, net.JoinHostPort(srv.Target, strconv.Itoa(int(srv.Port))))
@@ -26,6 +28,7 @@ func GetServiceAddresses(srv string) (addrs []string, err error) {
 	return addrs, nil
 }
 
+// Logger (comment to appease golint)
 type Logger interface {
 	Printf(string, ...interface{})
 	Errorf(string, ...interface{})
@@ -38,6 +41,7 @@ type Logger interface {
 	Fatalf(string, ...interface{})
 }
 
+// BaseMessage (comment to appease golint)
 type BaseMessage struct {
 	Src     net.IP
 	Port    int
@@ -47,32 +51,67 @@ type BaseMessage struct {
 	RecvTime time.Time
 }
 
+// Transport (comment to appease golint)
 type Transport interface {
 	Publish([]*flowmessage.FlowMessage)
 }
 
+// DefaultLogTransport (lorem)
 type DefaultLogTransport struct {
 }
 
+// Publish Default (lorem)
 func (s *DefaultLogTransport) Publish(msgs []*flowmessage.FlowMessage) {
 	for _, msg := range msgs {
 		fmt.Printf("%v\n", FlowMessageToString(msg))
 	}
 }
 
+// DefaultJSONTransport (lorem)
 type DefaultJSONTransport struct {
 }
 
+// Publish JSON (lorem)
 func (s *DefaultJSONTransport) Publish(msgs []*flowmessage.FlowMessage) {
 	for _, msg := range msgs {
 		fmt.Printf("%v\n", FlowMessageToJSON(msg))
 	}
 }
 
+/*
+TODO:
+  * ensure this appends vs. overwrite single line
+	* add alternate formats
+	* add file path as param
+	* add tests
+*/
+
+// DefaultFileTransport is a transport for writing to a file.
+type DefaultFileTransport struct {
+}
+
+// Publish writes FlowMessages to a File.
+func (s *DefaultFileTransport) Publish(msgs []*flowmessage.FlowMessage) {
+	f, err := os.OpenFile("goflow.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, msg := range msgs {
+		if _, err := f.Write([]byte(FlowMessageToString(msg))); err != nil {
+			log.Fatal(err)
+		}
+	}
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// DefaultErrorCallback (lorem)
 type DefaultErrorCallback struct {
 	Logger Logger
 }
 
+// Callback (lorem)
 func (cb *DefaultErrorCallback) Callback(name string, id int, start, end time.Time, err error) {
 	if _, ok := err.(*netflow.ErrorTemplateNotFound); ok {
 		return
@@ -82,6 +121,7 @@ func (cb *DefaultErrorCallback) Callback(name string, id int, start, end time.Ti
 	}
 }
 
+// FlowMessageToString (lorem)
 func FlowMessageToString(fmsg *flowmessage.FlowMessage) string {
 	srcmac := make([]byte, 8)
 	dstmac := make([]byte, 8)
@@ -114,6 +154,7 @@ func FlowMessageToString(fmsg *flowmessage.FlowMessage) string {
 	return s
 }
 
+// FlowMessageToJSON (lorem)
 func FlowMessageToJSON(fmsg *flowmessage.FlowMessage) string {
 	srcmac := make([]byte, 8)
 	dstmac := make([]byte, 8)
@@ -146,6 +187,7 @@ func FlowMessageToJSON(fmsg *flowmessage.FlowMessage) string {
 	return s
 }
 
+// UDPRoutine (lorem)
 func UDPRoutine(name string, decodeFunc decoder.DecoderFunc, workers int, addr string, port int, sockReuse bool, logger Logger) error {
 	ecb := DefaultErrorCallback{
 		Logger: logger,

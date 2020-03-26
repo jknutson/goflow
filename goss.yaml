@@ -1,0 +1,8 @@
+---
+command:
+  goss-version:
+    exec: '/goflow -v'
+    exit-status: 0
+http:
+  http://localhost:8080/metrics:
+    status: 200
