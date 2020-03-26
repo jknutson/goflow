@@ -66,6 +66,14 @@ build-goflow-light: prepare
 docker-goflow:
 	docker build -t $(DOCKER_REPO)$(GOFLOW_NAME):$(GOFLOW_VERSION) --build-arg LDFLAGS=$(LDFLAGS) -f Dockerfile .
 
+.PHONY: dgoss
+dgoss:
+	@echo running dgoss
+	GOSS_SLEEP=1 dgoss run -it --entrypoint="sh" $(DOCKER_REPO)$(GOFLOW_NAME):$(GOFLOW_VERSION)
+
+.PHONY: docker-test
+docker-test: docker-goflow dgoss
+
 .PHONY: package-deb-goflow
 package-deb-goflow: prepare
 	fpm -s dir -t deb -n $(GOFLOW_NAME) -v $(VERSION_PKG) \

@@ -27,6 +27,23 @@ jobs:
             DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/" \
             GOFLOW_VERSION="${GITHUB_RUN_ID}" \
             BUILDINFOSDET="${GITHUB_SHA}"
+  test:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: docker.pkg.github.com
+          username: $GITHUB_ACTOR
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: 'actions/checkout@v2'
+      - name: 'Build the Docker image'
+        # yamllint disable rule:line-length
+        run: |
+          make dgoss \
+            DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/" \
+            GOFLOW_VERSION="${GITHUB_RUN_ID}" \
+            BUILDINFOSDET="${GITHUB_SHA}"
 #   # yamllint enable rule:line-length
 #   test:
 #     runs-on: 'ubuntu-latest'
