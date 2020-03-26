@@ -52,10 +52,8 @@ jobs:
           curl -L https://raw.githubusercontent.com/aelsabbahy/goss/${GOSS_VERSION}/extras/dgoss/dgoss -o ./bin/dgoss
           chmod +rx ./bin/dgoss
           export PATH="./bin:$PATH"
-          make dgoss \
-            DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/" \
-            GOFLOW_VERSION="${GITHUB_RUN_ID}" \
-            BUILDINFOSDET="${GITHUB_SHA}"
+          GOSS_SLEEP=1 dgoss run -it --entrypoint="sh" \
+            "docker.pkg.github.com/${GITHUB_REPOSITORY}/goflow:${GITHUB_RUN_ID}"
 #   # yamllint enable rule:line-length
 #   test:
 #     runs-on: 'ubuntu-latest'
