@@ -41,10 +41,12 @@ jobs:
         # yamllint disable rule:line-length
         run: |
           GOSS_VERSION='v0.3.10'
-          curl -L https://github.com/aelsabbahy/goss/releases/download/${GOSS_VERSION}/goss-linux-amd64 -o /usr/local/bin/goss
-          chmod +rx /usr/local/bin/goss
-          curl -L https://raw.githubusercontent.com/aelsabbahy/goss/${GOSS_VERSION}/extras/dgoss/dgoss -o /usr/local/bin/dgoss
-          chmod +rx /usr/local/bin/dgoss
+          mkdir -p bin
+          curl -L https://github.com/aelsabbahy/goss/releases/download/${GOSS_VERSION}/goss-linux-amd64 -o ./bin/goss
+          chmod +rx ./bin/goss
+          curl -L https://raw.githubusercontent.com/aelsabbahy/goss/${GOSS_VERSION}/extras/dgoss/dgoss -o ./bin/dgoss
+          chmod +rx ./bin/dgoss
+          export PATH="./bin:$PATH"
           make dgoss \
             DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/" \
             GOFLOW_VERSION="${GITHUB_RUN_ID}" \
