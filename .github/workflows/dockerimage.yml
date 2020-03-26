@@ -46,15 +46,15 @@ jobs:
       - name: 'Build the Docker image'
         # yamllint disable rule:line-length
         run: |
-          GOSS_VERSION='v0.3.10'
+          export GOSS_VERSION='v0.3.10'
           mkdir -p bin
           curl -L https://github.com/aelsabbahy/goss/releases/download/${GOSS_VERSION}/goss-linux-amd64 -o ./bin/goss
           chmod +rx ./bin/goss
           curl -L https://raw.githubusercontent.com/aelsabbahy/goss/${GOSS_VERSION}/extras/dgoss/dgoss -o ./bin/dgoss
           chmod +rx ./bin/dgoss
           export PATH="./bin:$PATH"
-          GOSS_SLEEP=1 dgoss run -it \
-            "docker.pkg.github.com/${GITHUB_REPOSITORY}/goflow:${GITHUB_RUN_ID}"
+          export GOSS_SLEEP=1
+          dgoss run -it "docker.pkg.github.com/${GITHUB_REPOSITORY}/goflow:${GITHUB_RUN_ID}" -kafka=false
 #   # yamllint enable rule:line-length
 #   test:
 #     runs-on: 'ubuntu-latest'
