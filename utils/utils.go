@@ -2,9 +2,7 @@ package utils
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -22,7 +20,7 @@ import (
 func GetServiceAddresses(srv string) (addrs []string, err error) {
 	_, srvs, err := net.LookupSRV("", "", srv)
 	if err != nil {
-		return nil, fmt.Errorf("Service discovery: %v\n", err)
+		return nil, fmt.Errorf("service discovery: %v", err)
 	}
 	for _, srv := range srvs {
 		addrs = append(addrs, net.JoinHostPort(srv.Target, strconv.Itoa(int(srv.Port))))
@@ -123,6 +121,7 @@ func (cb *DefaultErrorCallback) Callback(name string, id int, start, end time.Ti
 	}
 }
 
+// FlowMessageToString (lorem)
 func FlowMessageToString(fmsg *flowmessage.FlowMessage) string {
 	srcmac := make([]byte, 8)
 	dstmac := make([]byte, 8)
@@ -155,6 +154,7 @@ func FlowMessageToString(fmsg *flowmessage.FlowMessage) string {
 	return s
 }
 
+// FlowMessageToJSON (lorem)
 func FlowMessageToJSON(fmsg *flowmessage.FlowMessage) string {
 	srcmac := make([]byte, 8)
 	dstmac := make([]byte, 8)
@@ -187,6 +187,7 @@ func FlowMessageToJSON(fmsg *flowmessage.FlowMessage) string {
 	return s
 }
 
+// UDPRoutine (lorem)
 func UDPRoutine(name string, decodeFunc decoder.DecoderFunc, workers int, addr string, port int, sockReuse bool, logger Logger) error {
 	ecb := DefaultErrorCallback{
 		Logger: logger,
