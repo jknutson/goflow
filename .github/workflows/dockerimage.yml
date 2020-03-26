@@ -23,14 +23,13 @@ jobs:
       - name: 'Build the Docker image'
         # yamllint disable rule:line-length
         run: |
+          export DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/"
+          export GOFLOW_VERSION="${GITHUB_RUN_ID}"
+          export BUILDINFOSDET="${GITHUB_SHA}"
           make docker-goflow
           # make docker-goflow GOFLOW_VERSION="${GITHUB_RUN_ID}" BUILDINFOSDET="${GITHUB_SHA}"
           # docker build . --file Dockerfile --tag docker.pkg.github.com/${GITHUB_REPOSITORY}/goflow:${GITHUB_RUN_ID}
           # docker push docker.pkg.github.com/${GITHUB_REPOSITORY}/goflow:${GITHUB_RUN_ID}
-        env:
-          DOCKER_REPO: "docker.pkg.github.com/${GITHUB_REPOSITORY}/"
-          GOFLOW_VERSION: "${GITHUB_RUN_ID}"
-          BUILDINFOSDET: "${GITHUB_SHA}"
 #   # yamllint enable rule:line-length
 #   test:
 #     runs-on: 'ubuntu-latest'
