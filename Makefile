@@ -66,6 +66,9 @@ build-goflow-light: prepare
 docker-goflow:
 	docker build -t $(DOCKER_REPO)$(GOFLOW_NAME):$(GOFLOW_VERSION) --build-arg LDFLAGS=$(LDFLAGS) -f Dockerfile .
 
+.PHONY: docker-push
+	docker push $(DOCKER_REPO)$(GOFLOW_NAME):$(GOFLOW_VERSION)
+
 .PHONY: dgoss
 dgoss:
 	@echo running dgoss
