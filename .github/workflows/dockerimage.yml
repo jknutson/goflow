@@ -23,11 +23,15 @@ jobs:
       - name: 'Build the Docker image'
         # yamllint disable rule:line-length
         run: |
-          export DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/"
-          export GOFLOW_VERSION="${GITHUB_RUN_ID}"
-          export BUILDINFOSDET="${GITHUB_SHA}"
-          make docker-goflow
-          make docker-push
+          # TODO: figure out why i can't just export these once or use `env:`
+          make docker-goflow \
+            DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/" \
+            GOFLOW_VERSION="${GITHUB_RUN_ID}" \
+            BUILDINFOSDET="${GITHUB_SHA}"
+          make docker-push \
+            DOCKER_REPO="docker.pkg.github.com/${GITHUB_REPOSITORY}/" \
+            GOFLOW_VERSION="${GITHUB_RUN_ID}" \
+            BUILDINFOSDET="${GITHUB_SHA}"
   test:
     runs-on: 'ubuntu-latest'
     steps:
